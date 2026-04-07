@@ -1,0 +1,783 @@
+/* ============================================
+   HAEMA ARCHITECTS - 사내 RAG 챗봇 스타일시트
+   따뜻한 오렌지 톤 + 모바일 친화적 카드 레이아웃
+   ============================================ */
+
+/* ====== 폰트 불러오기 (Sans-serif만 사용) ====== */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
+
+/* ====== CSS 변수 (HAEMA 브랜드 컬러) ====== */
+:root {
+  /* 메인: 따뜻한 오렌지 */
+  --haema-orange: #F27A1A;
+  --haema-orange-hover: #E06A10;
+  --haema-orange-light: #FFF3E8;
+  --haema-orange-gradient: linear-gradient(135deg, #F27A1A, #FF9F43);
+
+  /* 배경 */
+  --bg-page: #F5F5F7;
+  --bg-card: #FFFFFF;
+  --bg-input: #FFFFFF;
+
+  /* 텍스트 */
+  --text-primary: #1A1A2E;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-on-orange: #FFFFFF;
+
+  /* 보더/라인 */
+  --border-default: #E5E7EB;
+  --border-focus: #F27A1A;
+
+  /* 그림자 */
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 4px 14px rgba(242, 122, 26, 0.35);
+}
+
+/* ====== 리셋 & 기본 ====== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ====== 메인 카드 컨테이너 ====== */
+.main-card {
+  background: var(--bg-card);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  padding: 32px 24px;
+  width: 100%;              /* ★ 항상 최대 폭 사용 (초기/대화 화면 동일) */
+  max-width: 500px;         /* ★ 2번 이미지(대화 화면) 기준으로 통일 */
+  margin: 20px auto;
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.5s ease-out;
+}
+
+/* 카드 등장 애니메이션 (아래에서 위로) */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ====== 로고 영역 ====== */
+.logo-area {
+  text-align: center;
+  padding-top: 8px;
+  margin-bottom: 24px;
+}
+
+.logo-text {
+  font-weight: 800;
+  font-size: 28px;
+  color: var(--haema-orange);
+  letter-spacing: 4px;
+  line-height: 1.2;
+}
+
+.logo-sub {
+  font-weight: 400;
+  font-size: 10px;
+  color: var(--text-secondary);
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ====== 프로그레스 바 (문서 등록 현황) ====== */
+.progress-section {
+  margin-bottom: 24px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.progress-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--haema-orange);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: var(--border-default);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--haema-orange-gradient);
+  border-radius: 100px;
+  transition: width 0.5s ease;
+  min-width: 0%;
+}
+
+/* ====== 제목/설명 영역 ====== */
+.section-title {
+  font-weight: 700;
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.section-desc {
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ====== 채팅 영역 ====== */
+.chat-area {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  min-height: 200px;
+  max-height: 400px;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 스크롤바 스타일 */
+.chat-area::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-area::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 100px;
+}
+
+/* 빈 상태 안내 메시지 */
+.chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+  gap: 8px;
+  padding: 40px 0;
+}
+
+.chat-empty-icon {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+/* ====== 채팅 메시지 ====== */
+
+/* 메시지 래퍼 */
+.msg-wrapper {
+  display: flex;
+  flex-direction: column;
+  animation: msgFadeIn 0.3s ease-out;
+}
+
+@keyframes msgFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.msg-wrapper.user {
+  align-items: flex-end;
+}
+
+.msg-wrapper.ai {
+  align-items: flex-start;
+  position: relative;
+}
+
+/* 사용자 메시지 (오렌지 배경, 우측) */
+.msg-user {
+  background: var(--haema-orange);
+  color: var(--text-on-orange);
+  padding: 12px 18px;
+  border-radius: 18px 18px 4px 18px;
+  max-width: 80%;
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+/* AI 답변 (연한 그레이 배경, 좌측) */
+.msg-ai {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  padding: 16px 18px;
+  border-radius: 18px 18px 18px 4px;
+  max-width: 85%;
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+/* AI 답변 내 마크다운 스타일 */
+.msg-ai p {
+  margin-bottom: 8px;
+}
+
+.msg-ai p:last-child {
+  margin-bottom: 0;
+}
+
+.msg-ai strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.msg-ai ul,
+.msg-ai ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.msg-ai li {
+  margin-bottom: 4px;
+}
+
+/* 출처 표시 (답변 아래, 연한 오렌지 배경) */
+.msg-sources {
+  margin-top: 8px;
+  padding: 10px 14px;
+  background: var(--haema-orange-light);
+  border-radius: 10px;
+  border-left: 3px solid var(--haema-orange);
+  max-width: 85%;
+}
+
+.msg-sources-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--haema-orange);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.msg-source-item {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 4px;
+  padding-left: 8px;
+  border-left: 2px solid var(--border-default);
+}
+
+.msg-source-item:last-child {
+  margin-bottom: 0;
+}
+
+.msg-source-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+/* ====== 로딩 애니메이션 (오렌지 dot 바운스) ====== */
+.loading-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+}
+
+.loading-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.loading-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--haema-orange);
+  border-radius: 50%;
+  animation: dotBounce 1.2s infinite ease-in-out;
+}
+
+.loading-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+}
+
+.loading-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ====== 입력 영역 ====== */
+.input-section {
+  margin-top: auto;
+}
+
+.input-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  padding-left: 44px;
+  border: 1.5px solid var(--border-default);
+  border-radius: 12px;
+  background: var(--bg-input);
+  font-size: 15px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(242, 122, 26, 0.1);
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+/* ====== 메인 버튼 (오렌지 라운드 pill) ====== */
+.btn-primary {
+  width: 100%;
+  padding: 16px 24px;
+  background: var(--haema-orange-gradient);
+  color: var(--text-on-orange);
+  border: none;
+  border-radius: 50px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Noto Sans KR', sans-serif;
+  cursor: pointer;
+  box-shadow: var(--shadow-button);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #E06A10, #F09030);
+  box-shadow: 0 6px 20px rgba(242, 122, 26, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-arrow {
+  font-size: 20px;
+  font-weight: 300;
+}
+
+/* ====== 보조 링크 (하단) ====== */
+.link-secondary {
+  color: var(--text-muted);
+  font-size: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 12px;
+  display: block;
+  text-align: center;
+  background: none;
+  border: none;
+  font-family: 'Noto Sans KR', sans-serif;
+  width: 100%;
+}
+
+.link-secondary:hover {
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
+
+/* 하단 링크 영역 (새 대화 + 문서 관리 나란히) */
+.bottom-links {
+  display: flex;
+  gap: 4px;
+}
+
+.bottom-links .link-secondary {
+  flex: 1;
+}
+
+/* ====== 문서 관리 화면 ====== */
+.docs-view {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+}
+
+.docs-view.active {
+  display: flex;
+}
+
+.chat-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.chat-view.hidden {
+  display: none;
+}
+
+/* 문서 카드 리스트 */
+.doc-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 400px;
+}
+
+.doc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: 12px;
+  transition: box-shadow 0.2s;
+}
+
+.doc-item:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.doc-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-status {
+  font-size: 12px;
+  color: var(--haema-orange);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.doc-check {
+  color: var(--haema-orange);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* 문서 빈 상태 */
+.doc-empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* 파일 업로드 드래그앤드롭 영역 */
+.upload-area {
+  border: 2px dashed var(--border-default);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 12px;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: pointer;
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: var(--haema-orange);
+  background: var(--haema-orange-light);
+}
+
+.upload-area-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.upload-area-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.upload-area-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 숨겨진 파일 입력 */
+.file-input-hidden {
+  display: none;
+}
+
+/* 업로드 진행 중 메시지 */
+.upload-status {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  min-height: 20px;
+}
+
+.upload-status.success {
+  color: #10B981;
+}
+
+.upload-status.error {
+  color: #EF4444;
+}
+
+/* ====== 반응형 디자인 ====== */
+
+/* 모바일: 카드가 화면 가득 */
+@media (max-width: 520px) {
+  .main-card {
+    margin: 0;
+    border-radius: 0;
+    min-height: 100vh;
+    padding: 24px 20px;
+  }
+}
+
+/* 태블릿/데스크톱: 카드 중앙 정렬 */
+@media (min-width: 521px) {
+  body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+}
+
+/* ====== ① 카테고리 탭 ====== */
+.category-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 12px 0 4px;
+  border-bottom: 2px solid var(--border-default);
+  margin-bottom: 16px;
+}
+
+.cat-tab {
+  flex: 1;
+  padding: 7px 4px;
+  border: none;
+  background: transparent;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Noto Sans KR', sans-serif;
+  white-space: nowrap;
+}
+
+.cat-tab:hover {
+  background: var(--haema-orange-light);
+  color: var(--haema-orange);
+}
+
+.cat-tab.active {
+  background: var(--haema-orange);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(242, 122, 26, 0.3);
+}
+
+/* ====== ② FAQ 섹션 ====== */
+.faq-section {
+  margin-bottom: 12px;
+  animation: fadeIn 0.3s ease;
+}
+
+.faq-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
+}
+
+.faq-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.faq-chip {
+  padding: 7px 14px;
+  background: var(--haema-orange-light);
+  border: 1.5px solid #F5C599;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--haema-orange);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: 'Noto Sans KR', sans-serif;
+  line-height: 1.4;
+}
+
+.faq-chip:hover {
+  background: var(--haema-orange);
+  color: #fff;
+  border-color: var(--haema-orange);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(242, 122, 26, 0.25);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ====== 카테고리 뱃지 (검색 범위 안내) ====== */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--haema-orange-light);
+  border: 1px solid #F5C599;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--haema-orange);
+  margin-bottom: 8px;
+}
+
+/* ====== ③ AI 답변 + 복사 버튼 래퍼 ====== */
+.msg-ai-wrapper {
+  position: relative;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: 'Noto Sans KR', sans-serif;
+  z-index: 1;
+  backdrop-filter: blur(4px);
+}
+
+.copy-btn:hover {
+  border-color: var(--haema-orange);
+  color: var(--haema-orange);
+  background: var(--haema-orange-light);
+}
+
+.copy-btn.copied {
+  border-color: #10B981;
+  color: #10B981;
+  background: #ECFDF5;
+}
