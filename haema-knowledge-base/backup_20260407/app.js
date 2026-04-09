@@ -31,15 +31,6 @@ const categoryBadgeText = document.getElementById("categoryBadgeText");
 /** 현재 선택된 카테고리 */
 let currentCategory = "all";
 
-/** 관리자 인증 상태 (현재 세션동안만 유효) */
-let isAdminAuthenticated = false;
-
-/** 인증된 관리자 비밀번호 (삭제 시 재검증용) */
-let adminPassword = "";
-
-/** 삭제 대기 중인 파일명 */
-let pendingDeleteFileName = "";
-
 /** 카테고리별 표시 이름 */
 const CATEGORY_LABELS = {
   all:        "전체 문서",
@@ -97,35 +88,13 @@ document.addEventListener("DOMContentLoaded", () => {
   loadStatus();
   // FAQ 초기 렌더링
   renderFAQ("all");
-  // Enter 키로 전송 (통합검색용)
+  // Enter 키로 전송
   questionInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.isComposing) {
       e.preventDefault();
       sendQuestion();
     }
   });
-
-  // ========== 계정검색 엔터 처리 ==========
-  const accountQueryInput = document.getElementById("accountQuery");
-  if (accountQueryInput) {
-    accountQueryInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.isComposing) {
-        e.preventDefault();
-        searchAccount();
-      }
-    });
-  }
-
-  const securityCodeInput = document.getElementById("securityCode");
-  if (securityCodeInput) {
-    securityCodeInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && !e.isComposing) {
-        e.preventDefault();
-        verifyAccount();
-      }
-    });
-  }
-
   // 드래그 앤 드롭 이벤트
   setupDragAndDrop();
 });
@@ -147,20 +116,16 @@ function selectCategory(el, category) {
 
   currentCategory = category;
 
-  // 계정검색 뷰 숨기고 채팅 뷰 표시
-  const accountView = document.getElementById("accountView");
-  if (accountView) accountView.classList.remove("active");
-  chatView.classList.remove("hidden");
-  docsView.classList.remove("active");
-
   // FAQ 재렌더링
   renderFAQ(category);
 
   // 카테고리 뱃지 표시
-  categoryBadge.style.display = "inline-flex";
-  categoryBadgeText.textContent = category === "all" 
-    ? "📂 전체 규정, 매뉴얼 검색 중" 
-    : "📂 " + CATEGORY_LABELS[category] + " 범위 검색 중";
+  if (category === "all") {
+    categoryBadge.style.display = "none";
+  } else {
+    categoryBadge.style.display = "inline-flex";
+    categoryBadgeText.textContent = "📂 " + CATEGORY_LABELS[category] + " 범위 검색 중";
+  }
 }
 
 // ──────────────────────────────────────────────
@@ -173,9 +138,8 @@ function selectCategory(el, category) {
  */
 function renderFAQ(category) {
   const faqs = FAQ_DATA[category] || FAQ_DATA["all"];
-  const limitedFaqs = faqs.slice(0, 4); // 최대 2열 * 2줄 = 4개로 제한
   faqChips.innerHTML = "";
-  limitedFaqs.forEach(q => {
+  faqs.forEach(q => {
     const chip = document.createElement("button");
     chip.className = "faq-chip";
     chip.textContent = q;
@@ -232,13 +196,8 @@ function updateProgress(count) {
 
 /** 채팅 내역을 초기화하고 메인 화면으로 돌아가기 */
 function resetChat() {
-  // 채팅 영역 초기화 (해키 아바타 및 인사문구 원복)
-  chatArea.innerHTML = `
-    <div class="chat-empty" id="chatEmpty">
-      <img src="/static/heaky.png" alt="Heaky Avatar" class="heaky-avatar">
-      <div class="heaky-greeting">안녕? 난 해키 (Heaky)~!</div>
-    </div>
-  `;
+  // 채팅 영역 초기화
+  chatArea.innerHTML = '';
   // 입력창 초기화
   questionInput.value = "";
   sendBtn.disabled = false;
@@ -254,24 +213,10 @@ function resetChat() {
 // 뷰 전환 (채팅 ↔ 문서 관리)
 // ──────────────────────────────────────────────
 
-/** 문서 관리 화면으로 전환 (관리자 인증 필요) */
+/** 문서 관리 화면으로 전환 */
 function showDocsView() {
-  if (isAdminAuthenticated) {
-    // 이미 인증된 상태: 바로 진입
-    openDocsViewDirectly();
-  } else {
-    // 인증 모달 표시
-    showAdminModal();
-  }
-}
-
-/** 인증 완료 후 문서관리 화면 직접 진입 */
-function openDocsViewDirectly() {
   chatView.classList.add("hidden");
   docsView.classList.add("active");
-  // 등록 문서 프로그레스 바 표시 (문서관리에서만)
-  const ps = document.getElementById("progressSection");
-  if (ps) ps.style.display = "";
   loadDocuments();
 }
 
@@ -279,9 +224,6 @@ function openDocsViewDirectly() {
 function showChatView() {
   docsView.classList.remove("active");
   chatView.classList.remove("hidden");
-  // 등록 문서 프로그레스 바 숨기기
-  const ps = document.getElementById("progressSection");
-  if (ps) ps.style.display = "none";
   questionInput.focus();
 }
 
@@ -340,10 +282,6 @@ async function sendQuestion() {
 
 /** 사용자 메시지 말풍선 추가 */
 function appendUserMessage(text) {
-  // 처음 질문 시(아바타가 있으면) 비우기
-  const empty = document.getElementById("chatEmpty");
-  if (empty) empty.remove();
-
   const wrapper = document.createElement("div");
   wrapper.className = "msg-wrapper user";
 
@@ -641,14 +579,7 @@ async function loadDocuments() {
         '  <div class="doc-name">' + escapeHtml(doc.file_name) + "</div>" +
         '  <div class="doc-status">등록됨</div>' +
         "</div>" +
-        '<button class="doc-delete-btn" title="삭제" data-filename="' + escapeHtml(doc.file_name) + '">🗑️</button>';
-
-      // 삭제 버튼 이벤트
-      const deleteBtn = item.querySelector(".doc-delete-btn");
-      deleteBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        requestDeleteDocument(doc.file_name);
-      });
+        '<span class="doc-check">✓</span>';
 
       docList.appendChild(item);
     }
@@ -766,321 +697,3 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
-
-
-// ──────────────────────────────────────────────
-// 계정 검색 기능 (3단계 폼)
-// ──────────────────────────────────────────────
-
-/** 계정검색 현재 단계 및 검색된 사용자 이름 */
-let accountStep = 1;
-let accountUserName = "";
-
-/** 계정검색 탭 클릭 → 계정검색 뷰로 전환 */
-function switchToAccountView(el) {
-  // 탭 active 상태
-  document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-  if (el) el.classList.add("active");
-
-  // 채팅 뷰 + 문서 뷰 숨기고 계정 뷰 표시
-  chatView.classList.add("hidden");
-  docsView.classList.remove("active");
-  const accountView = document.getElementById("accountView");
-  accountView.classList.add("active");
-
-  // Step 1로 초기화
-  resetAccountSearch();
-}
-
-/** 계정검색에서 채팅 뷰로 돌아가기 */
-function backToChatFromAccount() {
-  const accountView = document.getElementById("accountView");
-  accountView.classList.remove("active");
-  chatView.classList.remove("hidden");
-
-  // 탭 상태 복원 (전체 탭 활성화)
-  document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-  const allTab = document.querySelector('.cat-tab[data-category="all"]');
-  if (allTab) allTab.classList.add("active");
-  currentCategory = "all";
-  renderFAQ("all");
-  categoryBadge.style.display = "none";
-}
-
-/** 단계 진행바 업데이트 */
-function updateAccountProgress(step) {
-  const pct = Math.round((step / 3) * 100);
-  document.getElementById("accountStepText").textContent = `${step}단계 / 3단계`;
-  document.getElementById("accountStepPct").textContent = `${pct}%`;
-  document.getElementById("accountProgressBar").style.width = `${pct}%`;
-}
-
-/** 에러 메시지 표시 */
-function showAccountError(stepNum, message) {
-  const el = document.getElementById(`accountError${stepNum}`);
-  el.textContent = `⚠️ ${message}`;
-  el.style.display = "block";
-  // 3초 후 자동 숨김
-  setTimeout(() => { el.style.display = "none"; }, 3000);
-}
-
-/** 에러 메시지 숨기기 */
-function hideAccountErrors() {
-  document.getElementById("accountError1").style.display = "none";
-  document.getElementById("accountError2").style.display = "none";
-}
-
-/** Step 1: 이름/사번으로 검색 */
-async function searchAccount() {
-  const query = document.getElementById("accountQuery").value.trim();
-  if (!query) {
-    showAccountError(1, "정보를 입력해주세요.");
-    return;
-  }
-
-  const btn = document.getElementById("accountSearchBtn");
-  btn.disabled = true;
-  btn.innerHTML = '⭐ 검색 중...';
-
-  try {
-    const res = await fetch("/api/account/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
-    });
-    const data = await res.json();
-
-    if (!data.found) {
-      showAccountError(1, data.message || "일치하는 정보가 없습니다.");
-      btn.disabled = false;
-      btn.innerHTML = '다음 단계로 <span class="btn-arrow">›</span>';
-      return;
-    }
-
-    // 성공: Step 2로 전환
-    accountUserName = data.name;
-    document.getElementById("accountUserName").textContent = data.name;
-
-    document.getElementById("accountStep1").style.display = "none";
-    document.getElementById("accountStep2").style.display = "block";
-    updateAccountProgress(2);
-    document.getElementById("securityCode").focus();
-
-  } catch (err) {
-    showAccountError(1, "검색 중 오류가 발생했습니다.");
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '다음 단계로 <span class="btn-arrow">›</span>';
-  }
-}
-
-/** Step 2: 보안코드 인증 */
-async function verifyAccount() {
-  const code = document.getElementById("securityCode").value.trim();
-  if (!code) {
-    showAccountError(2, "보안코드를 입력해주세요.");
-    return;
-  }
-
-  const btn = document.getElementById("accountVerifyBtn");
-  btn.disabled = true;
-  btn.innerHTML = '🔒 인증 중...';
-
-  try {
-    const res = await fetch("/api/account/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: accountUserName, code }),
-    });
-    const data = await res.json();
-
-    if (!data.verified) {
-      showAccountError(2, data.message || "보안코드가 일치하지 않습니다.");
-      btn.disabled = false;
-      btn.innerHTML = '인증 완료 <span class="btn-arrow">✓</span>';
-      return;
-    }
-
-    // 성공: Step 3으로 전환 + 결과 카드 렌더링
-    document.getElementById("accountStep2").style.display = "none";
-    document.getElementById("accountStep3").style.display = "block";
-    updateAccountProgress(3);
-
-    const card = document.getElementById("accountResultCard");
-    card.innerHTML = `
-      <div class="result-field">
-        <div class="result-label">ID (아이디)</div>
-        <div class="result-value">${escapeHtml(data.account)}</div>
-      </div>
-      <div class="result-field">
-        <div class="result-label">PASSWORD</div>
-        <div class="result-value result-password">${escapeHtml(data.password)}</div>
-      </div>
-      <div class="result-meta">
-        ${escapeHtml(data.department)} | ${escapeHtml(data.position)} | ${escapeHtml(data.email)}
-      </div>
-    `;
-
-  } catch (err) {
-    showAccountError(2, "인증 중 오류가 발생했습니다.");
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '인증 완료 <span class="btn-arrow">✓</span>';
-  }
-}
-
-/** Step 2에서 Step 1으로 돌아가기 */
-function accountGoBack() {
-  document.getElementById("accountStep2").style.display = "none";
-  document.getElementById("accountStep1").style.display = "block";
-  document.getElementById("securityCode").value = "";
-  hideAccountErrors();
-  updateAccountProgress(1);
-}
-
-/** 계정검색 초기화 (Step 1로 리셋) */
-function resetAccountSearch() {
-  accountStep = 1;
-  accountUserName = "";
-  document.getElementById("accountStep1").style.display = "block";
-  document.getElementById("accountStep2").style.display = "none";
-  document.getElementById("accountStep3").style.display = "none";
-  document.getElementById("accountQuery").value = "";
-  document.getElementById("securityCode").value = "";
-  document.getElementById("accountResultCard").innerHTML = "";
-  hideAccountErrors();
-  updateAccountProgress(1);
-}
-
-
-// ──────────────────────────────────────────────
-// 관리자 인증 & 문서 삭제 기능
-// ──────────────────────────────────────────────
-
-/** 관리자 인증 모달 표시 */
-function showAdminModal() {
-  const modal = document.getElementById("adminModal");
-  const input = document.getElementById("adminPasswordInput");
-  const error = document.getElementById("adminAuthError");
-
-  modal.style.display = "flex";
-  input.value = "";
-  error.style.display = "none";
-  // 모달이 표시된 후 포커스
-  setTimeout(() => input.focus(), 100);
-}
-
-/** 관리자 인증 모달 닫기 */
-function closeAdminModal() {
-  document.getElementById("adminModal").style.display = "none";
-}
-
-/** 관리자 비밀번호 검증 */
-async function verifyAdmin() {
-  const input = document.getElementById("adminPasswordInput");
-  const error = document.getElementById("adminAuthError");
-  const btn = document.getElementById("adminAuthBtn");
-  const password = input.value.trim();
-
-  if (!password) {
-    error.textContent = "비밀번호를 입력해주세요.";
-    error.style.display = "block";
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '인증 중...';
-
-  try {
-    const res = await fetch("/api/admin/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      isAdminAuthenticated = true;
-      adminPassword = password;  // 삭제 시 재검증용 저장
-      closeAdminModal();
-      // 인증 성공 → 문서관리 화면 진입
-      openDocsViewDirectly();
-    } else {
-      error.textContent = "비밀번호가 일치하지 않습니다.";
-      error.style.display = "block";
-      input.value = "";
-      input.focus();
-    }
-  } catch (err) {
-    error.textContent = "인증 중 오류가 발생했습니다.";
-    error.style.display = "block";
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '인증하기 <span class="btn-arrow">›</span>';
-  }
-}
-
-/** 문서 삭제 요청 (삭제 확인 모달 표시) */
-function requestDeleteDocument(fileName) {
-  pendingDeleteFileName = fileName;
-  const modal = document.getElementById("deleteConfirmModal");
-  document.getElementById("deleteFileName").textContent = fileName;
-  modal.style.display = "flex";
-}
-
-/** 삭제 확인 모달 닫기 */
-function closeDeleteModal() {
-  document.getElementById("deleteConfirmModal").style.display = "none";
-  pendingDeleteFileName = "";
-}
-
-/** 문서 삭제 실행 */
-async function confirmDelete() {
-  if (!pendingDeleteFileName) return;
-
-  const btn = document.getElementById("confirmDeleteBtn");
-  btn.disabled = true;
-  btn.textContent = "삭제 중...";
-
-  try {
-    const res = await fetch("/api/documents/delete", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        file_name: pendingDeleteFileName,
-        password: adminPassword,  // 인증된 비밀번호로 재검증
-      }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      showUploadStatus(data.message, "success");
-      // 문서 목록 새로고침
-      await loadDocuments();
-    } else {
-      showUploadStatus(data.message || "삭제에 실패했습니다.", "error");
-    }
-  } catch (err) {
-    showUploadStatus("삭제 중 오류가 발생했습니다: " + err.message, "error");
-  } finally {
-    closeDeleteModal();
-    btn.disabled = false;
-    btn.textContent = "삭제하기";
-  }
-}
-
-// ──────────────────────────────────────────────
-// 모달 Enter 키 지원
-// ──────────────────────────────────────────────
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    const adminModal = document.getElementById("adminModal");
-    if (adminModal && adminModal.style.display === "flex") {
-      e.preventDefault();
-      verifyAdmin();
-    }
-  }
-});
-

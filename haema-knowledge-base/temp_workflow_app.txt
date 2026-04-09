@@ -1,0 +1,20 @@
+﻿python : Traceback (most recent call last):
+위치 줄:1 문자:1
++ python -c "
++ ~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent cal 
+   l last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+1: import streamlit as st
+2: import pandas as pd
+3: import os
+4: import time
+5: import base64
+6: 
+7: # --- Page Configuration ---
+8: st.set_page_config(
+9:     page_title="HAEMA Architects",
+  File "<string>", line 5, in <module>
+UnicodeEncodeError: 'cp949' codec can't encode character '\U0001f3e2' in
+ position 19: illegal multibyte sequence

@@ -1,0 +1,22 @@
+[
+  {
+    "timestamp": "2026-04-07 17:14:46",
+    "excel_file": "AccountList_2025_11.xlsx",
+    "added": 1,
+    "deleted": 1,
+    "modified": 1,
+    "protected": 1,
+    "backup_file": "account_list_20260407_171444.csv",
+    "total_after": 224
+  },
+  {
+    "timestamp": "2026-04-07 15:11:29",
+    "excel_file": "AccountList_2025_11.xlsx",
+    "added": 19,
+    "deleted": 50,
+    "modified": 29,
+    "protected": 1,
+    "backup_file": "account_list_20260407_151127.csv",
+    "total_after": 224
+  }
+]

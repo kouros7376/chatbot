@@ -152,17 +152,6 @@ class AccountVerifyRequest(BaseModel):
     code: str       # 보안코드
 
 
-class AdminAuthRequest(BaseModel):
-    """관리자 인증 요청 모델"""
-    password: str
-
-
-class DeleteDocRequest(BaseModel):
-    """문서 삭제 요청 모델"""
-    file_name: str
-    password: str   # 관리자 비밀번호 재확인
-
-
 # ──────────────────────────────────────────────
 # API 엔드포인트
 # ──────────────────────────────────────────────
@@ -279,71 +268,6 @@ async def get_status():
     except Exception as e:
         logger.error(f"상태 API 오류: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ──────────────────────────────────────────────
-# 관리자 인증 & 문서 삭제 API
-# ──────────────────────────────────────────────
-
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "197819")
-
-
-@app.post("/api/admin/auth")
-async def admin_auth(request: AdminAuthRequest):
-    """
-    관리자 비밀번호를 검증합니다.
-    문서 관리 화면 진입 시 호출됩니다.
-    """
-    if request.password == ADMIN_PASSWORD:
-        logger.info("관리자 인증 성공")
-        return {"success": True, "message": "인증되었습니다."}
-    else:
-        logger.warning("관리자 인증 실패")
-        return {"success": False, "message": "비밀번호가 일치하지 않습니다."}
-
-
-@app.post("/api/admin/reload-accounts")
-async def reload_accounts(request: AdminAuthRequest):
-    """
-    계정 CSV 데이터를 메모리에 다시 로드합니다.
-    Account Manager 프로그램에서 CSV 저장 후 호출됩니다.
-    """
-    if request.password != ADMIN_PASSWORD:
-        raise HTTPException(status_code=403, detail="관리자 인증이 필요합니다.")
-    
-    load_account_data()
-    count = len(account_df) if account_df is not None else 0
-    logger.info(f"계정 데이터 재로드 완료: {count}건")
-    return {
-        "success": True,
-        "message": f"계정 데이터가 재로드되었습니다. ({count}건)",
-        "count": count,
-    }
-
-
-@app.post("/api/documents/delete")
-async def delete_document(request: DeleteDocRequest):
-    """
-    문서를 삭제합니다.
-    관리자 비밀번호 재확인 후 삭제를 진행합니다.
-    """
-    try:
-        # 관리자 비밀번호 재확인
-        if request.password != ADMIN_PASSWORD:
-            raise HTTPException(status_code=403, detail="관리자 인증이 필요합니다.")
-
-        result = await manager.delete_document(request.file_name)
-
-        return {
-            "success": result["success"],
-            "message": result["message"],
-            "document_count": manager.get_document_count(),
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"문서 삭제 API 오류: {e}")
-        raise HTTPException(status_code=500, detail=f"문서 삭제 중 오류가 발생했습니다: {str(e)}")
 
 
 # ──────────────────────────────────────────────

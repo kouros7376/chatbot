@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HAEMA | 사내 정보 통합 검색</title>
-  <link rel="stylesheet" href="/static/style.css?v=11">
+  <link rel="stylesheet" href="/static/style.css?v=5">
 </head>
 <body>
 
@@ -46,10 +46,6 @@
 
       <!-- 채팅 영역 -->
       <div class="chat-area" id="chatArea">
-        <div class="chat-empty" id="chatEmpty">
-          <img src="/static/heaky.png" alt="Heaky Avatar" class="heaky-avatar">
-          <div class="heaky-greeting">안녕? 난 해키 (Heaky)~!</div>
-        </div>
       </div>
 
       <!-- ====== ② FAQ 영역 (입력 바로 위에 배치) ====== -->
@@ -63,8 +59,8 @@
       <!-- 입력 영역 -->
       <div class="input-section">
         <!-- 카테고리 뱃지 (전체 탭이 아닐 때만 표시) -->
-        <div class="category-badge" id="categoryBadge" style="display:inline-flex;">
-          <span id="categoryBadgeText">📂 전체 규정, 매뉴얼 검색 중</span>
+        <div class="category-badge" id="categoryBadge" style="display:none;">
+          <span id="categoryBadgeText">전체 문서 검색</span>
         </div>
         <label class="input-label" for="questionInput">질문 입력</label>
         <div class="input-wrapper">
@@ -143,10 +139,7 @@
       <p class="section-desc">사내 계정 정보를 안전하게 조회합니다.</p>
 
       <!-- ── 가운데 빈 공간 (채팅 뷰의 chat-area와 동일 역할) ── -->
-      <div class="account-spacer chat-empty">
-        <img src="/static/heaky.png" alt="Heaky Avatar" class="heaky-avatar">
-        <div class="heaky-greeting">안녕? 난 해키 (Heaky)~!</div>
-      </div>
+      <div class="account-spacer"></div>
 
       <!-- ── 하단 영역 (채팅 뷰의 FAQ+입력+버튼 위치와 동일) ── -->
 
@@ -157,7 +150,7 @@
         <label class="input-label" for="accountQuery">사용자 정보</label>
         <div class="input-wrapper">
           <span class="input-icon">👤</span>
-          <input type="text" class="input-field" id="accountQuery" placeholder="사번 또는 성함 입력" autocomplete="off" onkeydown="if(event.key === 'Enter') { event.preventDefault(); searchAccount(); }">
+          <input type="text" class="input-field" id="accountQuery" placeholder="사번 또는 성함 입력" autocomplete="off">
         </div>
         <button class="btn-primary" id="accountSearchBtn" onclick="searchAccount()">다음 단계로 <span class="btn-arrow">›</span></button>
         <!-- 에러 메시지 -->
@@ -171,7 +164,7 @@
         <label class="input-label" for="securityCode">보안코드</label>
         <div class="input-wrapper">
           <span class="input-icon">🔒</span>
-          <input type="password" class="input-field" id="securityCode" placeholder="보안코드 입력" autocomplete="off" onkeydown="if(event.key === 'Enter') { event.preventDefault(); verifyAccount(); }">
+          <input type="password" class="input-field" id="securityCode" placeholder="보안코드 입력" autocomplete="off">
         </div>
         <p class="account-hint">💡 예: 사번 123 + 주민등록번호 끝 456 → 123456</p>
         <button class="btn-primary" id="accountVerifyBtn" onclick="verifyAccount()">인증 완료 <span class="btn-arrow">✓</span></button>
@@ -195,40 +188,6 @@
 
   </div>
 
-  <!-- ====== 관리자 인증 모달 (main-card 바깥, 프레임 영향 없음) ====== -->
-  <div class="admin-modal-overlay" id="adminModal" style="display:none;">
-    <div class="admin-modal">
-      <div class="admin-modal-header">
-        <span class="admin-modal-icon">🔐</span>
-        <h3 class="admin-modal-title">관리자 인증</h3>
-      </div>
-      <p class="admin-modal-desc">문서 관리 기능은 관리자만 사용할 수 있습니다.<br>관리자 비밀번호를 입력해주세요.</p>
-      <div class="input-wrapper">
-        <span class="input-icon">🔑</span>
-        <input type="password" class="input-field" id="adminPasswordInput" placeholder="관리자 비밀번호 입력" autocomplete="off">
-      </div>
-      <div class="admin-modal-error" id="adminAuthError" style="display:none;"></div>
-      <button class="btn-primary" id="adminAuthBtn" onclick="verifyAdmin()">인증하기 <span class="btn-arrow">›</span></button>
-      <button class="link-secondary" onclick="closeAdminModal()">취소</button>
-    </div>
-  </div>
-
-  <!-- ====== 삭제 확인 모달 ====== -->
-  <div class="admin-modal-overlay" id="deleteConfirmModal" style="display:none;">
-    <div class="admin-modal">
-      <div class="admin-modal-header">
-        <span class="admin-modal-icon">⚠️</span>
-        <h3 class="admin-modal-title">문서 삭제 확인</h3>
-      </div>
-      <p class="admin-modal-desc">다음 문서를 삭제하시겠습니까?<br><b id="deleteFileName"></b></p>
-      <p class="admin-modal-warning">⚠️ 삭제된 문서는 복구할 수 없습니다.</p>
-      <div class="admin-modal-actions">
-        <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">삭제하기</button>
-        <button class="link-secondary" onclick="closeDeleteModal()">취소</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="/static/app.js?v=11"></script>
+  <script src="/static/app.js?v=5"></script>
 </body>
 </html>
